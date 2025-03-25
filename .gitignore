@@ -37,4 +37,5 @@
 *.zip
 build/
 Lab1/Lab1
+Lab1/testcases/
 Lab1/out*.txt
