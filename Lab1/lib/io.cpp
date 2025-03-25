@@ -15,6 +15,11 @@ void read_file(const char *filename, std::string &boolean_equation, std::vector<
     while (!file.eof()) {
         std::string order;
         std::getline(file, order);
+
+        // skip empty lines
+        if (order.empty())
+            continue;
+
         orders.emplace_back(order);
     }
 

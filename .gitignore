@@ -34,6 +34,7 @@
 # VS Code
 .vscode/
 
+*.zip
 build/
 Lab1/Lab1
 Lab1/out*.txt

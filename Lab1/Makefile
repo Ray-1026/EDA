@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -O3 -Iinclude
+CXXFLAGS = -std=c++17 -Wall -Wextra -O3 -Iinclude -fopenmp
 
 LIB_DIR = lib
 INCLUDE_DIR = include
