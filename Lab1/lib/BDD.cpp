@@ -1,6 +1,6 @@
 #include "BDD.h"
 
-void BDDSolver::addUniqueToBDDTable(const BDDKey &key, BDDNode *node)
+void BDDSolver::addUniqueToBDDTable(const BDDNode &key, BDDNode *node)
 {
     auto it = bdd_table.find(key);
     if (it == bdd_table.end())
@@ -13,7 +13,7 @@ BDDNode *BDDSolver::makeNode(int var, BDDNode *low, BDDNode *high)
         return low;
 
     // search in bdd_table, if found, return the node; otherwise, create a new node
-    BDDKey key(var, low, high);
+    BDDNode key(var, low, high);
     auto it = bdd_table.find(key);
     if (it != bdd_table.end())
         return it->second;
@@ -81,12 +81,12 @@ BDDNode *BDDSolver::buildBDD(std::string &boolean_equation, unsigned int idx)
         return nullptr;
 
     if (boolean_equation == "0") { // return 0 node
-        addUniqueToBDDTable(BDDKey(0), zero);
+        addUniqueToBDDTable(BDDNode(0), zero);
         return zero;
     }
 
     if (boolean_equation == "1") { // return 1 node
-        addUniqueToBDDTable(BDDKey(1), one);
+        addUniqueToBDDTable(BDDNode(1), one);
         return one;
     }
 

@@ -12,25 +12,14 @@ struct BDDNode {
     BDDNode *high;
 
     BDDNode(int var, BDDNode *low = nullptr, BDDNode *high = nullptr) : var(var), low(low), high(high) {}
+
+    bool operator==(const BDDNode &other) const { return var == other.var && low == other.low && high == other.high; }
 };
 
 class BDDSolver {
   private:
-    struct BDDKey {
-        int var;
-        BDDNode *low;
-        BDDNode *high;
-
-        BDDKey(int var, BDDNode *low = nullptr, BDDNode *high = nullptr) : var(var), low(low), high(high) {}
-
-        bool operator==(const BDDKey &other) const
-        {
-            return var == other.var && low == other.low && high == other.high;
-        }
-    };
-
-    struct BDDKeyHash {
-        std::size_t operator()(const BDDKey &k) const
+    struct BDDNodeHash {
+        std::size_t operator()(const BDDNode &k) const
         {
             auto h1 = std::hash<int>()(k.var);
             auto h2 = std::hash<BDDNode *>()(k.low);
@@ -41,7 +30,7 @@ class BDDSolver {
     };
 
     // Add a unique node to the BDD table, if already exists, no action is taken
-    void addUniqueToBDDTable(const BDDKey &key, BDDNode *node);
+    void addUniqueToBDDTable(const BDDNode &key, BDDNode *node);
 
     // Create a new BDD node, if already exists, return the existing node
     BDDNode *makeNode(int var, BDDNode *low, BDDNode *high);
@@ -52,7 +41,7 @@ class BDDSolver {
     int min_nodes = INT_MAX;
     std::string current_order;
     BDDNode *one = new BDDNode(1), *zero = new BDDNode(0);
-    std::unordered_map<BDDKey, BDDNode *, BDDKeyHash> bdd_table;
+    std::unordered_map<BDDNode, BDDNode *, BDDNodeHash> bdd_table;
 
   public:
     BDDSolver() {}
