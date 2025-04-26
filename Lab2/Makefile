@@ -8,7 +8,7 @@ BUILD_DIR = build
 TARGET = Lab2
 VERIFIER = verifier
 OBJECTS := $(patsubst $(LIB_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(wildcard $(LIB_DIR)/*.cpp)) $(BUILD_DIR)/main.o
-TESTCASES := $(wildcard testcase/*.hgr)
+TESTCASES := $(wildcard *.hgr)
 
 all: clean $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $(OBJECTS) -o $(TARGET)
@@ -25,7 +25,7 @@ clean:
 
 run:
 	for file in $(TESTCASES); do \
-		echo ""; \
+		echo "\nRunning test case: $$file"; \
 		./$(TARGET) $$file; \
 		./$(VERIFIER) $$file output.txt; \
 	done

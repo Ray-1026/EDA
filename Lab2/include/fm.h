@@ -14,7 +14,7 @@
 #include <unordered_set>
 
 #define endl '\n'
-#define DEBUG 1
+#define DEBUG 0
 
 class FiducciaMattheyses {
   private:

@@ -150,10 +150,10 @@ void FiducciaMattheyses::move_cell(int cid, int to_partition)
 
 void FiducciaMattheyses::update_gains(int cid)
 {
+    // NOTE: cell's partition has changed => `from` = 1 - cell.part, `to` = cell.part
     int from_part = 1 - cells[cid].part, to_part = cells[cid].part;
 
     for (int nid : cells[cid].connected_nets) {
-        // NOTE: cell's partition has changed, `from` = 1 - cell.part, `to` = cell.part
         int f = nets[nid].part_size[from_part], t = nets[nid].part_size[to_part];
 
         if (t == 0) {
@@ -218,15 +218,16 @@ void FiducciaMattheyses::update_gains(int cid)
 void FiducciaMattheyses::unlock()
 {
     gain_sum = gain_max;
+
+#pragma omp parallel for
     for (int i = 0; i < num_cells; i++) {
         cells[i].unlock();
         cells[i].part = best_record[i];
-        // partition_A_size += (1 - cells[i].part);
     }
 
-    // perturb
-    if (do_perturb)
-        perturb();
+    // // perturb
+    // if (do_perturb)
+    //     perturb();
 
     partition_A_size = 0;
     for (int i = 0; i < num_cells; i++)
@@ -266,14 +267,10 @@ void FiducciaMattheyses::solve()
             // break;
             iters++;
 
-            if (!improvement) {
-                no_improvement_round++;
-                if (no_improvement_round >= early_stop)
-                    break;
-            }
-            else
-                no_improvement_round = 0;
+            no_improvement_round = (improvement) ? 0 : no_improvement_round + 1;
             improvement = false;
+            if (no_improvement_round >= early_stop)
+                break;
 
             unlock();
             continue;
