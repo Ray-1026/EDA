@@ -214,23 +214,42 @@ void FiducciaMattheyses::update_gains(int cid)
     }
 }
 
+// to avoid local minima
 void FiducciaMattheyses::unlock()
 {
     gain_sum = gain_max;
-    partition_A_size = 0;
     for (int i = 0; i < num_cells; i++) {
         cells[i].unlock();
         cells[i].part = best_record[i];
-        partition_A_size += (1 - cells[i].part);
+        // partition_A_size += (1 - cells[i].part);
     }
+
+    // perturb
+    if (do_perturb)
+        perturb();
+
+    partition_A_size = 0;
+    for (int i = 0; i < num_cells; i++)
+        partition_A_size += (1 - cells[i].part);
 
     init_gains();
     init_buckets();
 }
 
+void FiducciaMattheyses::perturb()
+{
+    int num_to_perturb = std::max(1, int(0.02 * num_cells));
+    std::uniform_int_distribution<int> dist(0, num_cells - 1);
+
+    for (int i = 0; i < num_to_perturb; i++) {
+        int cid = dist(rng);
+        cells[cid].move();
+    }
+}
+
 void FiducciaMattheyses::solve()
 {
-    int unlock_time = 0;
+    int iters = 1;
     while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() -
                                                                  start_time) < std::chrono::milliseconds(29800)) {
         // auto timer1 = std::chrono::high_resolution_clock::now();
@@ -245,9 +264,18 @@ void FiducciaMattheyses::solve()
         // auto timer3 = std::chrono::high_resolution_clock::now();
         if (max_A.first == -1 && max_B.first == -1) {
             // break;
+            iters++;
+
+            if (!improvement) {
+                no_improvement_round++;
+                if (no_improvement_round >= early_stop)
+                    break;
+            }
+            else
+                no_improvement_round = 0;
+            improvement = false;
 
             unlock();
-            unlock_time++;
             continue;
         }
         else {
@@ -262,6 +290,7 @@ void FiducciaMattheyses::solve()
 
         // auto timer5 = std::chrono::high_resolution_clock::now();
         if (gain_sum > gain_max) { // update the best record
+            improvement = true;
             gain_max = gain_sum;
 
 #pragma omp parallel for
@@ -278,8 +307,8 @@ void FiducciaMattheyses::solve()
 
 #if DEBUG
     auto end_time = std::chrono::high_resolution_clock::now();
-    std::cout << unlock_time + 1 << " iters taken: "
+    std::cout << iters << " iters taken: "
               << std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count() / 1000000.0
-              << " seconds" << endl;
+              << " seconds, max gain: " << gain_max << endl;
 #endif
 }
