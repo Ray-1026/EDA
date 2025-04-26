@@ -25,6 +25,9 @@ void FiducciaMattheyses::read_file(const std::string &filename)
         best_record.emplace_back(c.part);
     }
 
+    // randomly perturb the initial partition
+    perturb();
+
     // init nets
     for (int i = 0; i < num_nets; i++) {
         std::getline(file, s);
@@ -109,7 +112,6 @@ void FiducciaMattheyses::init_buckets()
 
 void FiducciaMattheyses::find_max_gains(std::pair<int, int> &p, int partition)
 {
-    // int max_gain = INT_MIN, cid = -1;
     double partition_A_size_prime = (partition == A) ? (partition_A_size - 1) : (partition_A_size + 1);
 
     // break if the partition size is out of bounds
@@ -120,10 +122,6 @@ void FiducciaMattheyses::find_max_gains(std::pair<int, int> &p, int partition)
     // for (int i = 2 * num_nets; i >= 0; i--) {
     for (int i = max_partition_gains[partition]; i >= 0; i--) {
         if (buckets[partition][i].size() > 0) {
-            // max_gain = i - num_nets;
-            // cid = *buckets[partition][i].begin();
-            // p.first = *buckets[partition][i].begin();
-
             p.first = *buckets[partition][i].begin();
             p.second = i - num_nets;
             return;
@@ -225,10 +223,6 @@ void FiducciaMattheyses::unlock()
         cells[i].part = best_record[i];
     }
 
-    // // perturb
-    // if (do_perturb)
-    //     perturb();
-
     partition_A_size = 0;
     for (int i = 0; i < num_cells; i++)
         partition_A_size += (1 - cells[i].part);
@@ -240,11 +234,16 @@ void FiducciaMattheyses::unlock()
 void FiducciaMattheyses::perturb()
 {
     int num_to_perturb = std::max(1, int(0.02 * num_cells));
-    std::uniform_int_distribution<int> dist(0, num_cells - 1);
+    std::vector<int> candidates(num_cells);
+    std::iota(candidates.begin(), candidates.end(), 0);
+    std::shuffle(candidates.begin(), candidates.end(), rng);
 
     for (int i = 0; i < num_to_perturb; i++) {
-        int cid = dist(rng);
+        int cid = candidates[i];
         cells[cid].move();
+
+        partition_A_size += (cells[cid].part == A) ? 1 : -1;
+        best_record[cid] = cells[cid].part;
     }
 }
 

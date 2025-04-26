@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    FiducciaMattheyses fm(argv[1], 42, false);
+    FiducciaMattheyses fm(argv[1], 0);
     fm.solve();
 
     // Get the best record

@@ -26,8 +26,7 @@ class FiducciaMattheyses {
     int no_improvement_round = 0;
     bool improvement = false;
 
-    // perturbation
-    bool do_perturb;
+    // random seed
     std::mt19937 rng;
 
     // balance ratio: 0.45 ~ 0.55
@@ -54,7 +53,7 @@ class FiducciaMattheyses {
     void perturb();
 
   public:
-    FiducciaMattheyses(const std::string &filename, int seed, bool do_perturb) : do_perturb(do_perturb)
+    FiducciaMattheyses(const std::string &filename, int seed)
     {
         // Start the timer
         start_time = std::chrono::high_resolution_clock::now();
@@ -63,7 +62,7 @@ class FiducciaMattheyses {
         read_file(filename);
 
         // init
-        rng.seed(seed);
+        this->rng = std::mt19937(seed);
         init_balance_ratio();
         init_gains();
         init_buckets();

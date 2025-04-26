@@ -25,7 +25,8 @@ clean:
 
 run:
 	for file in $(TESTCASES); do \
-		echo "\nRunning test case: $$file"; \
+		echo ""; \
+		echo "Running test case: $$file"; \
 		./$(TARGET) $$file; \
 		./$(VERIFIER) $$file output.txt; \
 	done
