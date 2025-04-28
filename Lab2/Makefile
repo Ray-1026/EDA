@@ -27,6 +27,6 @@ run:
 	for file in $(TESTCASES); do \
 		echo ""; \
 		echo "Running test case: $$file"; \
-		./$(TARGET) $$file; \
+		timeout 30s ./$(TARGET) $$file; \
 		./$(VERIFIER) $$file output.txt; \
 	done
