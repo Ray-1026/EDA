@@ -7,7 +7,7 @@
 #include <iostream>
 #include <vector>
 
-void read_input(char *argv[], AStarRouting &routing, GridMap &grid_map);
+void read_input(char *argv[], AStarRouting &solver, GridMap &grid_map);
 void write_result(char *argc[], std::vector<std::vector<GCell>> &routing_paths);
 
 #endif // _IO_H

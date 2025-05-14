@@ -45,7 +45,6 @@ Lab1/out*.txt
 Lab2/Lab2
 Lab2/*.txt
 
+*.lg
 Lab3/NYCU-PDA-Lab4-Evaluator
 Lab3/D2DGRter
-Lab3/Evaluator
-Lab3/testcase

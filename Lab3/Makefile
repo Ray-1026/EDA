@@ -9,7 +9,8 @@ TARGET = D2DGRter
 OBJECTS := $(patsubst $(LIB_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(wildcard $(LIB_DIR)/*.cpp)) $(BUILD_DIR)/main.o
 
 num ?= 0
-TESTPATH = publicCase/testcase$(num)
+case ?=publicCase
+TESTPATH = $(case)/testcase$(num)
 TESTNAME = testcase$(num)
 
 all: clean $(OBJECTS)

@@ -10,14 +10,6 @@
 
 typedef unsigned int uint;
 
-// class GCell {
-//   public:
-//     int x = 0, y = 0;
-//     unsigned int h_capacity = 0, v_capacity = 0, h_occupied = 0, v_occupied = 0;
-//     double g_cost = 0, h_cost = 0, of_cost = 0;
-//     GCell *parent = nullptr;
-// };
-
 struct GCell {
     int x, y;                   // coordinates of the cell
     bool visited = false;       // visited flag
@@ -30,7 +22,6 @@ struct GCell {
     float via_cost;             // number of vias
     int layer;                  // layer (M1(1) or M2(0))
     std::pair<int, int> parent; // parent cell's grid index
-    // GCell *parent = nullptr;
 };
 
 class GridMap {

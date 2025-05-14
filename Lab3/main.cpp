@@ -9,15 +9,13 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // std::cout << "Hello, World!" << std::endl;
-
-    AStarRouting routing;
+    AStarRouting solver;
     GridMap grid_map;
-    read_input(argv, routing, grid_map);
+    read_input(argv, solver, grid_map);
 
-    routing.solve(grid_map);
+    solver.solve(grid_map);
 
-    auto routing_paths = routing.getRoutingPaths();
+    auto routing_paths = solver.getRoutingPaths();
     write_result(argv, routing_paths);
 
     return 0;

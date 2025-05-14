@@ -1,8 +1,13 @@
 #include "io.h"
 
-void read_input(char *argv[], AStarRouting &routing, GridMap &grid_map)
+void read_input(char *argv[], AStarRouting &solver, GridMap &grid_map)
 {
     std::ifstream gmp_file(argv[1]), gcl_file(argv[2]), cst_file(argv[3]);
+    if (!gmp_file.is_open() || !gcl_file.is_open() || !cst_file.is_open()) {
+        std::cerr << "Error opening input files.\n";
+        exit(1);
+    }
+
     std::string dump; // To skip the first line
 
     /* .gmp start */
@@ -67,17 +72,17 @@ void read_input(char *argv[], AStarRouting &routing, GridMap &grid_map)
     /* .cst start */
     float var;
     cst_file >> dump >> var;
-    routing.setAlpha(var);
+    solver.setAlpha(var);
     cst_file >> dump >> var;
-    routing.setBeta(var);
+    solver.setBeta(var);
     cst_file >> dump >> var;
-    routing.setGamma(var);
+    solver.setGamma(var);
     cst_file >> dump >> var;
-    routing.setDelta(var);
+    solver.setDelta(var);
     // .v
     cst_file >> dump;
     cst_file >> var;
-    routing.setViaCost(var);
+    solver.setViaCost(var);
     // .l
     cst_file >> dump;
     float max_cost = 0.0;
@@ -103,11 +108,9 @@ void read_input(char *argv[], AStarRouting &routing, GridMap &grid_map)
             max_cost = std::max(max_cost, cost);
         }
     }
-    routing.setMaxCellCost(max_cost);
+    solver.setMaxCellCost(max_cost);
     cst_file.close();
     /* .cst end */
-
-    std::cout << "Input files read successfully.\n";
 }
 
 void write_result(char *argc[], std::vector<std::vector<GCell>> &routing_paths)
@@ -117,8 +120,9 @@ void write_result(char *argc[], std::vector<std::vector<GCell>> &routing_paths)
         lg_file << "n" << i + 1 << "\n";
 
         std::string layer = "M1";
-        std::pair<int, int> cur = {routing_paths[i][0].x, routing_paths[i][0].y};
-        std::pair<int, int> next = {routing_paths[i][1].x, routing_paths[i][1].y};
+        uint sz = routing_paths[i].size();
+        std::pair<int, int> cur = {routing_paths[i][sz - 1].x, routing_paths[i][sz - 1].y};
+        std::pair<int, int> next = {routing_paths[i][sz - 2].x, routing_paths[i][sz - 2].y};
         std::pair<int, int> layer_start = cur;
 
         if (next.X != cur.X) { // right or left
@@ -127,9 +131,9 @@ void write_result(char *argc[], std::vector<std::vector<GCell>> &routing_paths)
         }
         lg_file << layer << " " << layer_start.X << " " << layer_start.Y;
 
-        for (uint j = 1; j < routing_paths[i].size() - 1; j++) {
+        for (uint j = sz - 2; j > 0; j--) {
             cur = {routing_paths[i][j].x, routing_paths[i][j].y};
-            next = {routing_paths[i][j + 1].x, routing_paths[i][j + 1].y};
+            next = {routing_paths[i][j - 1].x, routing_paths[i][j - 1].y};
 
             if (layer == "M1") {
                 if (next.X != cur.X) { // right or left
@@ -150,7 +154,7 @@ void write_result(char *argc[], std::vector<std::vector<GCell>> &routing_paths)
                 }
             }
         }
-        lg_file << " " << routing_paths[i].back().x << " " << routing_paths[i].back().y << "\n";
+        lg_file << " " << routing_paths[i][0].x << " " << routing_paths[i][0].y << "\n";
         if (layer == "M2")
             lg_file << "via\n";
         lg_file << ".end\n";
