@@ -59,7 +59,7 @@ void AStarRouting::a_star(GCell &start, GCell &end, GridMap &grid_map, std::vect
 
         if (current->x == end.x && current->y == end.y) { // Found target
             path_found = true;
-            continue;
+            break;
         }
 
         for (int i = 0; i < 4; i++) {
