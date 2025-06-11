@@ -75,9 +75,63 @@ void AtpgObj::BuildFromPath_NR(PATH *pptr)
 	else if(PreT==F) AddObj(ToCUTName(PreG, 1), /*value*/ 0);
 	else { cerr<<"R/F Error !"<<endl; exit(-1); }
 	
-   /*Fault Propagation = off-input setting on sensitive path */
+   	/*Fault Propagation = off-input setting on sensitive path */
+	for(int i=1;i<pptr->NoGate();++i){	
+		CurG=pptr->GetGate(i);	// current gate
+		CurT=pptr->GetTrans(i);	// current transition
 
-	
+		switch(CurG->GetFunction()){
+			case G_PI:	// Primary Input
+				if(CurT==R)
+					AddObj(ToCUTName(CurG, 0), 0);
+				else if(CurT==F)
+					AddObj(ToCUTName(CurG, 0), 1);
+				else{
+					cerr<<"R/F Error !"<<endl; 
+					exit(-1);
+				}
+
+				if(CurT==R)
+					AddObj(ToCUTName(CurG, 1), 1);
+				else if(CurT==F)
+					AddObj(ToCUTName(CurG, 1), 0);
+				else{
+					cerr<<"R/F Error !"<<endl; 
+					exit(-1);
+				}
+				break;
+
+			case G_AND:		// AND gate, cv=0, ncv=1
+			case G_NAND:	// NAND gate, cv=0, ncv=1
+				if(PreT==R || PreT==F){	// Non-Robust: x->ncv
+					for(int j=0;j<CurG->NoFanin();++j){
+						if(PreG!=CurG->Fanin(j))
+							AddObj(ToCUTName(CurG->Fanin(j), 1), 1);
+					}
+				}
+				else {
+					cerr<<"R/F Error !"<<endl; 
+					exit(-1);
+				}
+				break;
+
+			case G_OR:		// OR gate, cv=1, ncv=0
+			case G_NOR:		// NOR gate, cv=1, ncv=0
+				if(PreT==R || PreT==F){	// Non-Robust: x->ncv
+					for(int j=0;j<CurG->NoFanin();++j){
+						if(PreG!=CurG->Fanin(j))
+							AddObj(ToCUTName(CurG->Fanin(j), 1), 0);
+					}
+				}
+				else {
+					cerr<<"R/F Error !"<<endl; 
+					exit(-1);
+				}
+				break;
+		}
+		PreG=CurG;	// update PreG
+		PreT=CurT;	// update PreT
+	}
 }
 
 void AtpgObj::BuildFromPath_R(PATH *pptr)
@@ -88,7 +142,91 @@ void AtpgObj::BuildFromPath_R(PATH *pptr)
 	assert(pptr->NoGate()==pptr->NoTrans());
     
 	/*Do Fault Activation & Fault Propagation under Robust test setting*/
+	PreG=pptr->GetGate(0);
+	PreT=pptr->GetTrans(0);
 
+	// Fault Activation at 1st TimeFrame
+	if(PreT==R) AddObj(ToCUTName(PreG, 0), 0);
+	else if(PreT==F) AddObj(ToCUTName(PreG, 0), 1);
+	else { cerr<<"R/F Error !"<<endl; exit(-1); }
+
+	// Fault Activation at 2nd TimeFrame 
+	if(PreT==R) AddObj(ToCUTName(PreG, 1), 1);
+	else if(PreT==F) AddObj(ToCUTName(PreG, 1), 0);
+	else { cerr<<"R/F Error !"<<endl; exit(-1); }
+
+	for(int i=1;i<pptr->NoGate();++i){
+		CurG=pptr->GetGate(i);
+		CurT=pptr->GetTrans(i);
+
+		switch(CurG->GetFunction()){
+			case G_PI:	// Primary Input
+				if(CurT==R)
+					AddObj(ToCUTName(CurG, 0), 0);
+				else if(CurT==F)
+					AddObj(ToCUTName(CurG, 0), 1);
+				else{
+					cerr<<"R/F Error !"<<endl; 
+					exit(-1);
+				}
+
+				if(CurT==R)
+					AddObj(ToCUTName(CurG, 1), 1);
+				else if(CurT==F)
+					AddObj(ToCUTName(CurG, 1), 0);
+				else{
+					cerr<<"R/F Error !"<<endl; 
+					exit(-1);
+				}
+				break;
+
+			case G_AND:		// AND gate, cv=0, ncv=1
+			case G_NAND:	// NAND gate, cv=0, ncv=1
+				if(PreT==R){	// Robust: x->ncv
+					for(int j=0;j<CurG->NoFanin();++j){
+						if(PreG!=CurG->Fanin(j))
+							AddObj(ToCUTName(CurG->Fanin(j), 1), 1);
+					}
+				}
+				else if(PreT==F){	// Robust: ncv->ncv
+					for(int j=0;j<CurG->NoFanin();++j){
+						if(PreG!=CurG->Fanin(j)){
+							AddObj(ToCUTName(CurG->Fanin(j), 1), 1);
+							AddObj(ToCUTName(CurG->Fanin(j), 0), 1);
+						}
+					}
+				}
+				else {
+					cerr<<"R/F Error !"<<endl; 
+					exit(-1);
+				}
+				break;
+
+			case G_OR:		// OR gate, cv=1, ncv=0
+			case G_NOR:		// NOR gate, cv=1, ncv=0
+				if(PreT==R){	// Robust: ncv->ncv
+					for(int j=0;j<CurG->NoFanin();++j){
+						if(PreG!=CurG->Fanin(j)){
+							AddObj(ToCUTName(CurG->Fanin(j), 1), 0);
+							AddObj(ToCUTName(CurG->Fanin(j), 0), 0);
+						}
+					}
+				}
+				else if(PreT==F){	// Robust: x->ncv
+					for(int j=0;j<CurG->NoFanin();++j){
+						if(PreG!=CurG->Fanin(j))
+							AddObj(ToCUTName(CurG->Fanin(j), 1), 0);
+					}
+				}
+				else {
+					cerr<<"R/F Error !"<<endl; 
+					exit(-1);
+				}
+				break;
+		}
+		PreG=CurG;	// update PreG
+		PreT=CurT;	// update PreT
+	}
 }
 
 
