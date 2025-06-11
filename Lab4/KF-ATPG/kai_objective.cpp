@@ -62,17 +62,17 @@ void AtpgObj::BuildFromPath_NR(PATH *pptr)
 	TRANSITION CurT, PreT;
 	assert(pptr->NoGate()==pptr->NoTrans());
 
-	PreG=/* input gate on sensitive path*/
-	PreT=/* input transition on sensitive path*/
+	PreG=pptr->GetGate(0);	/* input gate on sensitive path*/
+	PreT=pptr->GetTrans(0);	/* input transition on sensitive path*/
 	
 	// Fault Activation at 1st TimeFrame
-	if(PreT==R) AddObj(ToCUTName(PreG, 0), /*value*/);
-	else if(PreT==F) AddObj(ToCUTName(PreG, 0), /*value*/);
+	if(PreT==R) AddObj(ToCUTName(PreG, 0), /*value*/ 0);
+	else if(PreT==F) AddObj(ToCUTName(PreG, 0), /*value*/ 1);
 	else { cerr<<"R/F Error !"<<endl; exit(-1); }
 
 	// Fault Activation at 2nd TimeFrame 
-	if(PreT==R) AddObj(ToCUTName(PreG, 1), /*value*/);
-	else if(PreT==F) AddObj(ToCUTName(PreG, 1), /*value*/);
+	if(PreT==R) AddObj(ToCUTName(PreG, 1), /*value*/ 1);
+	else if(PreT==F) AddObj(ToCUTName(PreG, 1), /*value*/ 0);
 	else { cerr<<"R/F Error !"<<endl; exit(-1); }
 	
    /*Fault Propagation = off-input setting on sensitive path */

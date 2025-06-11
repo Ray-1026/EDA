@@ -48,3 +48,5 @@ Lab2/*.txt
 *.lg
 Lab3/NYCU-PDA-Lab4-Evaluator
 Lab3/D2DGRter
+
+!Lab4/KF-ATPG/csat_new1/libsat.a
