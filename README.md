@@ -11,3 +11,4 @@ Semester : 2025 Spring
 | Lab 1 | Binary Decision Diagram |
 | Lab 2 | Two-Way Partition |
 | Lab 3 | Die-to-Die Global Routing |
+| Lab 4 | SAT-Based Path-Delay-Fault ATPG |
